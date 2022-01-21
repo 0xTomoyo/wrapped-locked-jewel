@@ -1,0 +1,6 @@
+testBurn() (gas: 457689)
+testFailBurn() (gas: 276891)
+testFailMint() (gas: 9604)
+testFailStart() (gas: 67330)
+testMint() (gas: 282332)
+testStart() (gas: 70097)
