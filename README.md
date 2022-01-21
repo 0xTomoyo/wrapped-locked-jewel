@@ -1,2 +1,2 @@
-# wlJEWEL - Wrapped Locked Jewel
+# wlJEWEL - Wrapped Locked Jewels
 
