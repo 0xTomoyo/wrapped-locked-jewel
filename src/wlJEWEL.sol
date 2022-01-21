@@ -19,9 +19,16 @@ contract wlJEWEL is ERC20 {
         brokers[msg.sender] = broker;
     }
 
-    function mint(address account) external returns (uint256 amount) {
-        amount = brokers[account].pull(account);
-        _mint(account, amount);
+    function mint(address account) external returns (uint256 shares) {
+        shares = brokers[account].pull(account);
+        _mint(account, shares);
+    }
+
+    function burn(address account, uint256 shares) external returns (uint256 amount) {
+        jewel.unlock();
+        amount = (shares * jewel.balanceOf(address(this))) / totalSupply;
+        _burn(account, shares);
+        jewel.transfer(msg.sender, amount);
     }
 }
 
