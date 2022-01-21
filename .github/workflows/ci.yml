@@ -16,4 +16,4 @@ jobs:
           version: nightly
 
       - name: Run tests
-        run: forge test -f https://api.harmony.one/ -vvv
+        run: forge test -f https://api.harmony.one/ -vvvvv
