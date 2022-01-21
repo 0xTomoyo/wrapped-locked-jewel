@@ -3,19 +3,22 @@ pragma solidity 0.8.10;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
+import {IBank} from "./interfaces/IBank.sol";
 
 contract wlJEWEL is ERC20 {
     IJewelToken public immutable jewel;
+    IBank public immutable bank;
 
     mapping(address => JewelBroker) public brokers;
 
-    constructor(address _jewel) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
+    constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
         jewel = IJewelToken(_jewel);
+        bank = IBank(_bank);
     }
 
     function start(address account) external returns (JewelBroker broker) {
-        require(address(brokers[account]) == address(0), "cannot restart");
-        broker = new JewelBroker();
+        require(address(brokers[account]) == address(0), "ALREADY_STARTED");
+        broker = new JewelBroker(jewel);
         brokers[msg.sender] = broker;
     }
 
@@ -25,10 +28,38 @@ contract wlJEWEL is ERC20 {
     }
 
     function burn(uint256 shares) external returns (uint256 amount) {
-        jewel.unlock();
-        amount = (shares * jewel.balanceOf(address(this))) / totalSupply;
+        unlock();
+        uint256 bankBalance = bank.balanceOf(address(this));
+        require(bankBalance > 0, "NO_SHARES");
+        bank.leave((shares * bankBalance) / totalSupply);
         _burn(msg.sender, shares);
+        amount = jewel.balanceOf(address(this));
         jewel.transfer(msg.sender, amount);
+    }
+
+    function pricePerShare() external view returns (uint256) {
+        uint256 totalShares = totalSupply;
+        return totalSupply > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
+    }
+
+    function unlock() public {
+        uint256 canUnlockAmount = jewel.canUnlockAmount(address(this));
+        if (canUnlockAmount > 0) {
+            jewel.unlock();
+        }
+        uint256 balance = jewel.balanceOf(address(this));
+        if (balance > 0) {
+            jewel.approve(address(bank), balance);
+            bank.enter(balance);
+        }
+    }
+
+    function unlockedJewel() public view returns (uint256) {
+        uint256 bankShares = bank.totalSupply();
+        return
+            jewel.balanceOf(address(this)) +
+            jewel.canUnlockAmount(address(this)) +
+            (bankShares > 0 ? ((bank.balanceOf(address(this)) * jewel.balanceOf(address(bank))) / bankShares) : 0);
     }
 }
 
@@ -36,13 +67,13 @@ contract JewelBroker {
     wlJEWEL public immutable wlJewel;
     IJewelToken public immutable jewel;
 
-    constructor() {
+    constructor(IJewelToken _jewel) {
         wlJewel = wlJEWEL(msg.sender);
-        jewel = wlJEWEL(msg.sender).jewel();
+        jewel = _jewel;
     }
 
     function pull(address account) external returns (uint256 lock) {
-        require(msg.sender == address(wlJewel), "can only pull from wlJewel");
+        require(msg.sender == address(wlJewel), "UNAUTHORIZED");
         jewel.transfer(account, jewel.balanceOf(address(this)));
         lock = jewel.lockOf(address(this));
         jewel.transferAll(msg.sender);
