@@ -12,21 +12,32 @@ import {IBank} from "./interfaces/IBank.sol";
 contract WrappedLockedJewelToken is ERC20 {
     IJewelToken public immutable jewel;
     IBank public immutable bank;
-
+    address internal immutable escrowImplementation;
     mapping(address => JewelEscrow) public escrows;
 
     constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
         jewel = IJewelToken(_jewel);
         bank = IBank(_bank);
+        escrowImplementation = address(new JewelEscrow(_jewel));
     }
 
-    function start(address account) external returns (JewelEscrow escrow) {
+    function start(address account) external returns (address escrow) {
         require(address(escrows[account]) == address(0), "STARTED");
-        escrow = new JewelEscrow(jewel);
-        escrows[msg.sender] = escrow;
+        // Creates a minimal proxy clone of the escrow contract
+        address implementation = escrowImplementation;
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(ptr, 0x14), shl(0x60, implementation))
+            mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+            escrow := create(0, ptr, 0x37)
+        }
+        escrows[msg.sender] = JewelEscrow(escrow);
     }
 
     function mint(address account) external returns (uint256 shares) {
+        // This stops any new mints after jewel tokens have fully unlocked
+        // This is necessary to prevent diluting the xJEWEL rewards of wlJEWEL holders
         require(block.number < jewel.lockToBlock(), "UNLOCKED");
         shares = escrows[account].pull(account);
         _mint(account, shares);
@@ -35,6 +46,7 @@ contract WrappedLockedJewelToken is ERC20 {
     function burn(uint256 shares) external returns (uint256 amount) {
         unlock();
         uint256 bankBalance = bank.balanceOf(address(this));
+        // This prevents a user from redeeming 0 JEWEL from wlJEWEL
         require(bankBalance > 0, "EMPTY");
         bank.leave((shares * bankBalance) / totalSupply);
         _burn(msg.sender, shares);

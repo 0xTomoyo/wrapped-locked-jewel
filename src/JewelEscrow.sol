@@ -10,9 +10,9 @@ contract JewelEscrow {
     address public immutable lockedJewel;
     IJewelToken public immutable jewel;
 
-    constructor(IJewelToken _jewel) {
+    constructor(address _jewel) {
         lockedJewel = msg.sender;
-        jewel = _jewel;
+        jewel = IJewelToken(_jewel);
     }
 
     function pull(address account) external returns (uint256 lock) {

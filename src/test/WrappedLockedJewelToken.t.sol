@@ -18,8 +18,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
 
     function testStart() public {
         assertEq(address(lockedJewel.escrows(address(this))), address(0));
-        JewelEscrow escrow = lockedJewel.start(address(this));
-        assertEq(address(lockedJewel.escrows(address(this))), address(escrow));
+        address escrow = lockedJewel.start(address(this));
+        assertEq(address(lockedJewel.escrows(address(this))), escrow);
     }
 
     function testFailStart() public {
@@ -28,14 +28,14 @@ contract WrappedLockedJewelTokenTest is Utilities {
     }
 
     function testMint() public {
-        JewelEscrow escrow = lockedJewel.start(address(this));
+        address escrow = lockedJewel.start(address(this));
 
         uint256 totalBalance = jewel.totalBalanceOf(address(this));
         uint256 locked = jewel.lockOf(address(this));
         assertEq(totalBalance, locked);
-        jewel.transferAll(address(escrow));
-        assertEq(jewel.totalBalanceOf(address(escrow)), totalBalance);
-        assertEq(jewel.lockOf(address(escrow)), locked);
+        jewel.transferAll(escrow);
+        assertEq(jewel.totalBalanceOf(escrow), totalBalance);
+        assertEq(jewel.lockOf(escrow), locked);
         assertEq(jewel.totalBalanceOf(address(this)), 0);
         assertEq(jewel.lockOf(address(this)), 0);
 
@@ -44,8 +44,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(lockedJewel.balanceOf(address(this)), totalBalance);
         assertEq(jewel.totalBalanceOf(address(lockedJewel)), totalBalance);
         assertEq(jewel.lockOf(address(lockedJewel)), locked);
-        assertEq(jewel.totalBalanceOf(address(escrow)), 0);
-        assertEq(jewel.lockOf(address(escrow)), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.lockOf(escrow), 0);
     }
 
     function testFailMint() public {
@@ -53,8 +53,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
     }
 
     function testBurn() public {
-        JewelEscrow escrow = lockedJewel.start(address(this));
-        jewel.transferAll(address(escrow));
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
         lockedJewel.mint(address(this));
 
         uint256 lockFromBlock = jewel.lockFromBlock();
@@ -65,8 +65,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
     }
 
     function testFailBurn() public {
-        JewelEscrow escrow = lockedJewel.start(address(this));
-        jewel.transferAll(address(escrow));
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
         lockedJewel.mint(address(this));
 
         uint256 lockFromBlock = jewel.lockFromBlock();
