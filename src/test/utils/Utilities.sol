@@ -10,6 +10,10 @@ contract Utilities is DSTest {
     Vm internal constant vm = Vm(HEVM_ADDRESS);
     IJewelToken internal constant jewel = IJewelToken(JEWEL);
 
+    function mintJewel(address to, uint256 amount) internal {
+        vm.store(address(jewel), keccak256(abi.encode(to, 0)), bytes32(amount));
+    }
+
     function mintLockedJewel(address to, uint256 amount) internal {
         vm.store(address(jewel), keccak256(abi.encode(to, 15)), bytes32(amount));
     }
