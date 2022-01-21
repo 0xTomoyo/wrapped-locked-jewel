@@ -17,6 +17,7 @@ contract JewelEscrow {
 
     function pull(address account) external returns (uint256 lock) {
         require(msg.sender == lockedJewel, "UNAUTHORIZED");
+        // Returns unlocked JEWEL back to the user
         jewel.transfer(account, jewel.balanceOf(address(this)));
         lock = jewel.lockOf(address(this));
         jewel.transferAll(msg.sender);
