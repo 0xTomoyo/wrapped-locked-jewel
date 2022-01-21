@@ -6,7 +6,7 @@ import {JewelEscrow} from "./JewelEscrow.sol";
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
 import {IBank} from "./interfaces/IBank.sol";
 
-contract wlJEWEL is ERC20 {
+contract WrappedLockedJewelToken is ERC20 {
     IJewelToken public immutable jewel;
     IBank public immutable bank;
 
