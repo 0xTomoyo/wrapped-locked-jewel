@@ -64,6 +64,7 @@ contract WrappedLockedJewelToken is ERC20 {
         if (canUnlockAmount > 0) {
             jewel.unlock();
         }
+        // Converts all unlocked tokens to xJEWEL
         uint256 balance = jewel.balanceOf(address(this));
         if (balance > 0) {
             jewel.approve(address(bank), balance);
