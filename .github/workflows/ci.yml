@@ -16,4 +16,4 @@ jobs:
           version: nightly
 
       - name: Run tests
-        run: forge test -f https://api.harmony.one/ -vvvvv
+        run: forge test --fork-url https://a.api.s0.t.hmny.io/ --fork-block-number 21963639
