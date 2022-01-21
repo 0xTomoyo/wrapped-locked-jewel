@@ -22,8 +22,9 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(address(lockedJewel.escrows(address(this))), escrow);
     }
 
-    function testFailStart() public {
+    function testStartTwice() public {
         lockedJewel.start(address(this));
+        vm.expectRevert("STARTED");
         lockedJewel.start(address(this));
     }
 
@@ -48,7 +49,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(jewel.lockOf(escrow), 0);
     }
 
-    function testFailMint() public {
+    function testMintBeforeStart() public {
+        vm.expectRevert("");
         lockedJewel.mint(address(this));
     }
 
@@ -64,7 +66,7 @@ contract WrappedLockedJewelTokenTest is Utilities {
         lockedJewel.burn(lockedJewel.balanceOf(address(this)));
     }
 
-    function testFailBurn() public {
+    function testBurnBeforeUnlock() public {
         address escrow = lockedJewel.start(address(this));
         jewel.transferAll(escrow);
         lockedJewel.mint(address(this));
@@ -72,6 +74,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
         uint256 lockFromBlock = jewel.lockFromBlock();
         vm.roll(lockFromBlock - 1);
 
-        lockedJewel.burn(lockedJewel.balanceOf(address(this)));
+        uint256 balance = lockedJewel.balanceOf(address(this));
+        vm.expectRevert("EMPTY");
+        lockedJewel.burn(balance);
     }
 }
