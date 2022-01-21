@@ -22,7 +22,7 @@ contract WrappedLockedJewelToken is ERC20 {
     }
 
     function start(address account) external returns (address escrow) {
-        require(address(escrows[account]) == address(0), "STARTED");
+        require(escrows[account] == address(0), "STARTED");
         // Creates a minimal proxy clone of the escrow contract
         address implementation = escrowImplementation;
         assembly {
