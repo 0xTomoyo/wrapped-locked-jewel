@@ -7,13 +7,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
         with:
           version: nightly
-
+      - name: Install dependencies
+        run: forge update
       - name: Run tests
-        run: forge test --fork-url https://a.api.s0.t.hmny.io/ --fork-block-number 21963639 --force
+        run: forge test --fork-url https://a.api.s0.t.hmny.io/ --fork-block-number 21963639
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - name: Install Foundry
+        uses: onbjerg/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Install dependencies
+        run: forge update
+      - name: Install node dependencies
+        run: yarn install
+      - name: Check if contracts are linted
+        run: yarn lint:check
