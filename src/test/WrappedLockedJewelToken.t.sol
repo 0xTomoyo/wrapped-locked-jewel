@@ -12,7 +12,7 @@ contract WrappedLockedJewelTokenTest is Utilities {
     WrappedLockedJewelToken internal lockedJewel;
 
     function setUp() public {
-        mintJewel(address(this), 100e18);
+        mintLockedJewel(address(this), 100e18);
         lockedJewel = new WrappedLockedJewelToken(address(jewel), address(bank));
     }
 
