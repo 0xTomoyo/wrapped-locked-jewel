@@ -12,8 +12,8 @@ import {IBank} from "./interfaces/IBank.sol";
 contract WrappedLockedJewelToken is ERC20 {
     IJewelToken public immutable jewel;
     IBank public immutable bank;
-    address internal immutable escrowImplementation;
     mapping(address => address) public escrows;
+    address internal immutable escrowImplementation;
 
     constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
         jewel = IJewelToken(_jewel);
