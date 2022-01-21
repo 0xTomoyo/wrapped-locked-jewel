@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity 0.8.10;
+pragma solidity ^0.8.10;
 
-import "ds-test/test.sol";
-
-import "./utils/Hevm.sol";
-import {wlJEWEL, JewelBroker} from "../wlJEWEL.sol";
+import {DSTest} from "ds-test/test.sol";
+import {wlJEWEL} from "../wlJEWEL.sol";
+import {JewelEscrow} from "../JewelEscrow.sol";
 import {IJewelToken} from "../interfaces/IJewelToken.sol";
 import {IBank} from "../interfaces/IBank.sol";
+import {Hevm} from "./utils/Hevm.sol";
 
 contract wlJEWELTest is DSTest {
     Hevm internal constant vm = Hevm(HEVM_ADDRESS);
@@ -22,9 +22,9 @@ contract wlJEWELTest is DSTest {
     }
 
     function testStart() public {
-        assertEq(address(wlJewel.brokers(address(this))), address(0));
-        JewelBroker broker = wlJewel.start(address(this));
-        assertEq(address(wlJewel.brokers(address(this))), address(broker));
+        assertEq(address(wlJewel.escrows(address(this))), address(0));
+        JewelEscrow escrow = wlJewel.start(address(this));
+        assertEq(address(wlJewel.escrows(address(this))), address(escrow));
     }
 
     function testFailStart() public {
@@ -33,14 +33,14 @@ contract wlJEWELTest is DSTest {
     }
 
     function testMint() public {
-        JewelBroker broker = wlJewel.start(address(this));
+        JewelEscrow escrow = wlJewel.start(address(this));
 
         uint256 totalBalance = JEWEL.totalBalanceOf(address(this));
         uint256 locked = JEWEL.lockOf(address(this));
         assertEq(totalBalance, locked);
-        JEWEL.transferAll(address(broker));
-        assertEq(JEWEL.totalBalanceOf(address(broker)), totalBalance);
-        assertEq(JEWEL.lockOf(address(broker)), locked);
+        JEWEL.transferAll(address(escrow));
+        assertEq(JEWEL.totalBalanceOf(address(escrow)), totalBalance);
+        assertEq(JEWEL.lockOf(address(escrow)), locked);
         assertEq(JEWEL.totalBalanceOf(address(this)), 0);
         assertEq(JEWEL.lockOf(address(this)), 0);
 
@@ -49,8 +49,8 @@ contract wlJEWELTest is DSTest {
         assertEq(wlJewel.balanceOf(address(this)), totalBalance);
         assertEq(JEWEL.totalBalanceOf(address(wlJewel)), totalBalance);
         assertEq(JEWEL.lockOf(address(wlJewel)), locked);
-        assertEq(JEWEL.totalBalanceOf(address(broker)), 0);
-        assertEq(JEWEL.lockOf(address(broker)), 0);
+        assertEq(JEWEL.totalBalanceOf(address(escrow)), 0);
+        assertEq(JEWEL.lockOf(address(escrow)), 0);
     }
 
     function testFailMint() public {
@@ -58,8 +58,8 @@ contract wlJEWELTest is DSTest {
     }
 
     function testBurn() public {
-        JewelBroker broker = wlJewel.start(address(this));
-        JEWEL.transferAll(address(broker));
+        JewelEscrow escrow = wlJewel.start(address(this));
+        JEWEL.transferAll(address(escrow));
         wlJewel.mint(address(this));
 
         uint256 lockFromBlock = JEWEL.lockFromBlock();
@@ -70,8 +70,8 @@ contract wlJEWELTest is DSTest {
     }
 
     function testFailBurn() public {
-        JewelBroker broker = wlJewel.start(address(this));
-        JEWEL.transferAll(address(broker));
+        JewelEscrow escrow = wlJewel.start(address(this));
+        JEWEL.transferAll(address(escrow));
         wlJewel.mint(address(this));
 
         uint256 lockFromBlock = JEWEL.lockFromBlock();
