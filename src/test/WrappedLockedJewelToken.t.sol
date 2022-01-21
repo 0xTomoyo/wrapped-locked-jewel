@@ -1,24 +1,18 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.10;
 
-import {DSTest} from "ds-test/test.sol";
 import {WrappedLockedJewelToken} from "../WrappedLockedJewelToken.sol";
 import {JewelEscrow} from "../JewelEscrow.sol";
-import {IJewelToken} from "../interfaces/IJewelToken.sol";
+import {Utilities} from "./utils/Utilities.sol";
 import {IBank} from "../interfaces/IBank.sol";
-import {Hevm} from "./utils/Hevm.sol";
-import {JEWEL, BANK} from "./utils/Constants.sol";
+import {BANK} from "./utils/Constants.sol";
 
-contract WrappedLockedJewelTokenTest is DSTest {
-    Hevm internal constant vm = Hevm(HEVM_ADDRESS);
-    IJewelToken internal constant jewel = IJewelToken(JEWEL);
+contract WrappedLockedJewelTokenTest is Utilities {
     IBank internal constant bank = IBank(BANK);
-
     WrappedLockedJewelToken internal lockedJewel;
 
     function setUp() public {
-        vm.store(address(jewel), keccak256(abi.encode(address(this), 15)), bytes32(uint256(100e18)));
-
+        mintJewel(address(this), 100e18);
         lockedJewel = new WrappedLockedJewelToken(address(jewel), address(bank));
     }
 
