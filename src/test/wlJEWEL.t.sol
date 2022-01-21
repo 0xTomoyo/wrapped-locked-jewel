@@ -53,6 +53,10 @@ contract wlJEWELTest is DSTest {
         assertEq(JEWEL.lockOf(address(broker)), 0);
     }
 
+    function testFailMint() public {
+        wlJewel.mint(address(this));
+    }
+
     function testBurn() public {
         JewelBroker broker = wlJewel.start(address(this));
         JEWEL.transferAll(address(broker));
