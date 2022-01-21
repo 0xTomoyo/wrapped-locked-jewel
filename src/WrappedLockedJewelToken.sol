@@ -39,6 +39,11 @@ contract WrappedLockedJewelToken is ERC20 {
         jewel.transfer(msg.sender, amount);
     }
 
+    function pricePerShare() external view returns (uint256) {
+        uint256 totalShares = totalSupply;
+        return totalSupply > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
+    }
+
     function unlock() public {
         uint256 canUnlockAmount = jewel.canUnlockAmount(address(this));
         if (canUnlockAmount > 0) {
