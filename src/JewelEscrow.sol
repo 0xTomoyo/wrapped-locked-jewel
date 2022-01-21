@@ -3,6 +3,9 @@ pragma solidity ^0.8.10;
 
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
 
+/// @title JewelEscrow
+/// @author 0xTomoyo
+/// @notice Escrow contract for minting locked Jewel tokens
 contract JewelEscrow {
     address public immutable lockedJewel;
     IJewelToken public immutable jewel;

@@ -6,6 +6,9 @@ import {JewelEscrow} from "./JewelEscrow.sol";
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
 import {IBank} from "./interfaces/IBank.sol";
 
+/// @title WrappedLockedJewelToken
+/// @author 0xTomoyo
+/// @notice A wrapped, tradable version of locked Jewel tokens
 contract WrappedLockedJewelToken is ERC20 {
     IJewelToken public immutable jewel;
     IBank public immutable bank;
