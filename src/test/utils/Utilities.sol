@@ -17,4 +17,21 @@ contract Utilities is DSTest {
     function mintLockedJewel(address to, uint256 amount) internal {
         vm.store(address(jewel), keccak256(abi.encode(to, 15)), bytes32(amount));
     }
+
+    function assertApproxEq(
+        uint256 a,
+        uint256 b,
+        uint256 maxDelta
+    ) internal virtual {
+        uint256 delta = a > b ? a - b : b - a;
+
+        if (delta > maxDelta) {
+            emit log("Error: a ~= b not satisfied [uint]");
+            emit log_named_uint("  Expected", a);
+            emit log_named_uint("    Actual", b);
+            emit log_named_uint(" Max Delta", maxDelta);
+            emit log_named_uint("     Delta", delta);
+            fail();
+        }
+    }
 }
