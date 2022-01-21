@@ -13,7 +13,7 @@ contract WrappedLockedJewelToken is ERC20 {
     IJewelToken public immutable jewel;
     IBank public immutable bank;
     address internal immutable escrowImplementation;
-    mapping(address => JewelEscrow) public escrows;
+    mapping(address => address) public escrows;
 
     constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
         jewel = IJewelToken(_jewel);
@@ -32,14 +32,14 @@ contract WrappedLockedJewelToken is ERC20 {
             mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
             escrow := create(0, ptr, 0x37)
         }
-        escrows[msg.sender] = JewelEscrow(escrow);
+        escrows[msg.sender] = escrow;
     }
 
     function mint(address account) external returns (uint256 shares) {
         // This stops any new mints after jewel tokens have fully unlocked
         // This is necessary to prevent diluting the xJEWEL rewards of wlJEWEL holders
         require(block.number < jewel.lockToBlock(), "UNLOCKED");
-        shares = escrows[account].pull(account);
+        shares = JewelEscrow(escrows[account]).pull(account);
         _mint(account, shares);
     }
 
