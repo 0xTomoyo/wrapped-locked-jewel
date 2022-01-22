@@ -4,11 +4,8 @@ pragma solidity ^0.8.10;
 import {WrappedLockedJewelToken} from "../WrappedLockedJewelToken.sol";
 import {JewelEscrow} from "../JewelEscrow.sol";
 import {Utilities} from "./utils/Utilities.sol";
-import {IBank} from "../interfaces/IBank.sol";
-import {BANK} from "./utils/Constants.sol";
 
 contract WrappedLockedJewelTokenTest is Utilities {
-    IBank internal constant bank = IBank(BANK);
     WrappedLockedJewelToken internal lockedJewel;
     uint256 internal constant mintAmount = 100e18;
 
