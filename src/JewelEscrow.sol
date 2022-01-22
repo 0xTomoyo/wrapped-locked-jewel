@@ -8,7 +8,9 @@ import {IJewelToken} from "./interfaces/IJewelToken.sol";
 /// @author 0xTomoyo
 /// @notice Escrow contract for minting locked Jewel tokens
 contract JewelEscrow {
+    /// @notice wlJEWEL contract address
     WrappedLockedJewelToken public immutable lockedJewel;
+    /// @notice JEWEL token address
     IJewelToken public immutable jewel;
 
     constructor(address _jewel) {
@@ -16,6 +18,11 @@ contract JewelEscrow {
         jewel = IJewelToken(_jewel);
     }
 
+    /// @notice Transfers locked JEWEL from this escrow to the wlJEWEl contract for minting wlJEWEL
+    /// @dev Can only be called by the wlJEWEL contract. Any unlocked JEWEL in this escrow is transferred
+    /// back to the account that deployed this escrow.
+    /// @param account The account that deployed this escrow
+    /// @return lock Amount of locked JEWEl transferred to the wlJEWEL contract
     function pull(address account) external returns (uint256 lock) {
         require(msg.sender == address(lockedJewel), "UNAUTHORIZED");
         // Returns unlocked JEWEL back to the user
@@ -33,6 +40,8 @@ contract JewelEscrow {
         jewel.transferAll(msg.sender);
     }
 
+    /// @notice Cancels the minting of wLJEWEL by transferring the locked JEWEL in this escrow to its deployer
+    /// @dev Can only be called by the deployer of this escrow
     function cancel() external {
         require(lockedJewel.escrows(msg.sender) == address(this), "UNAUTHORIZED");
         jewel.transferAll(msg.sender);

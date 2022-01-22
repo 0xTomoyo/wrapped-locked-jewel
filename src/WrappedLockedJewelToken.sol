@@ -12,7 +12,7 @@ import {IBank} from "./interfaces/IBank.sol";
 contract WrappedLockedJewelToken is ERC20 {
     /// @notice JEWEL token address
     IJewelToken public immutable jewel;
-    /// @notice xJEWEL address
+    /// @notice xJEWEL staking address
     IBank public immutable bank;
     /// @notice Returns the escrow address for an account
     mapping(address => address) public escrows;
@@ -58,9 +58,9 @@ contract WrappedLockedJewelToken is ERC20 {
     /// e.g. if the pricePerShare() == 0.2, you will receive 0.2 JEWEl for burning 1 wlJEWEL.
     /// The redemption rate increases as the locked JEWEL tokens unlock and as the unlocked
     /// tokens earn yield from xJEWEL staking. This will revert if the pricePerShare() == 0.
-    /// Once the locked JEWEL fully unlocks, the pricePerShare() will be >= 1
+    /// Once the locked JEWEL fully unlocks, the pricePerShare() will be >= 1.
     /// @param shares Amount of the senders wlJEWEL to burn
-    /// @param amount Amount of JEWEL redeemed and transferred to the sender
+    /// @return amount Amount of JEWEL redeemed and transferred to the sender
     function burn(uint256 shares) external returns (uint256 amount) {
         unlock();
         uint256 bankBalance = bank.balanceOf(address(this));
@@ -92,7 +92,7 @@ contract WrappedLockedJewelToken is ERC20 {
         return totalShares > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
     }
 
-    /// @notice The amount of JEWEL held by this contract that is currently unlocked/can be unlocked
+    /// @notice The amount of JEWEL held by this contract that is currently unlocked or can be unlocked
     function unlockedJewel() public view returns (uint256) {
         uint256 bankShares = bank.totalSupply();
         return
