@@ -190,6 +190,25 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
     }
 
+    function testBurnPartialAfterUnlock() public {
+        address escrow = lockedJewel.start();
+        jewel.transferAll(escrow);
+        lockedJewel.mint();
+
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll(lockToBlock);
+
+        uint256 unlockedJewel = lockedJewel.unlockedJewel();
+        uint256 balance = lockedJewel.balanceOf(address(this));
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount);
+        lockedJewel.burn(balance / 2);
+        assertEq(lockedJewel.balanceOf(address(this)), balance / 2);
+        assertApproxEq(jewel.balanceOf(address(this)), mintAmount / 2, 2);
+        assertApproxEq(jewel.balanceOf(address(this)), unlockedJewel / 2, 2);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
+    }
+
     function testUnlock() public {
         address escrow = lockedJewel.start();
         jewel.transferAll(escrow);
