@@ -50,6 +50,56 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(jewel.lockOf(escrow), 0);
     }
 
+    function testMintUnlockedJewel() public {
+        uint256 unlockedJewel = mintAmount / 2;
+        mintJewel(address(this), unlockedJewel);
+        address escrow = lockedJewel.start();
+
+        uint256 totalBalance = jewel.totalBalanceOf(address(this));
+        uint256 locked = jewel.lockOf(address(this));
+        assertEq(totalBalance, unlockedJewel + locked);
+        jewel.transferAll(escrow);
+        assertEq(jewel.totalBalanceOf(escrow), totalBalance);
+        assertEq(jewel.lockOf(escrow), locked);
+        assertEq(jewel.totalBalanceOf(address(this)), 0);
+        assertEq(jewel.lockOf(address(this)), 0);
+
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        lockedJewel.mint();
+        assertEq(lockedJewel.balanceOf(address(this)), locked);
+        assertEq(jewel.totalBalanceOf(address(this)), unlockedJewel);
+        assertEq(jewel.balanceOf(address(this)), unlockedJewel);
+        assertEq(jewel.totalBalanceOf(address(lockedJewel)), locked);
+        assertEq(jewel.lockOf(address(lockedJewel)), locked);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+    }
+
+    function testMintCancel() public {
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll(lockToBlock);
+
+        address escrow = lockedJewel.start();
+        jewel.transferAll(escrow);
+        assertEq(jewel.lockOf(escrow), mintAmount);
+        assertEq(jewel.totalBalanceOf(escrow), mintAmount);
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), 0);
+
+        JewelEscrow(escrow).cancel();
+        assertEq(jewel.lockOf(escrow), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+
+        lockedJewel.mint();
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+    }
+
     function testMintBeforeStart() public {
         vm.expectRevert("");
         lockedJewel.mint();
