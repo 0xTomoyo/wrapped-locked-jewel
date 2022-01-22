@@ -2,7 +2,7 @@
 
 ## Contract Addresses
 
-WrappedLockedJewelToken: [0xeb971D307F6654199C355397c80D791cB0479345](https://explorer.harmony.one/address/0xeb971D307F6654199C355397c80D791cB0479345)
+WrappedLockedJewelToken: [0x9b36Dcad5A75005887bC0f3F5Fbc94FBb0A326F0](https://explorer.harmony.one/address/0x9b36Dcad5A75005887bC0f3F5Fbc94FBb0A326F0)
 
 ## Setup
 
