@@ -18,7 +18,16 @@ contract JewelEscrow {
     function pull(address account) external returns (uint256 lock) {
         require(msg.sender == lockedJewel, "UNAUTHORIZED");
         // Returns unlocked JEWEL back to the user
-        jewel.transfer(account, jewel.balanceOf(address(this)));
+        // This stops any new mints after jewel tokens have fully unlocked
+        // This is necessary to prevent diluting the xJEWEL rewards of wlJEWEL holders
+        uint256 canUnlockAmount = jewel.canUnlockAmount(address(this));
+        if (canUnlockAmount > 0) {
+            jewel.unlock();
+        }
+        uint256 balance = jewel.balanceOf(address(this));
+        if (balance > 0) {
+            jewel.transfer(account, balance);
+        }
         lock = jewel.lockOf(address(this));
         jewel.transferAll(msg.sender);
     }

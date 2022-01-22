@@ -3,16 +3,17 @@ pragma solidity ^0.8.10;
 
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {JewelEscrow} from "./JewelEscrow.sol";
+import {IWrappedLockedJewelToken} from "./interfaces/IWrappedLockedJewelToken.sol";
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
 import {IBank} from "./interfaces/IBank.sol";
 
 /// @title WrappedLockedJewelToken
 /// @author 0xTomoyo
 /// @notice A wrapped, tradable version of locked Jewel tokens
-contract WrappedLockedJewelToken is ERC20 {
-    IJewelToken public immutable jewel;
-    IBank public immutable bank;
-    mapping(address => address) public escrows;
+contract WrappedLockedJewelToken is IWrappedLockedJewelToken, ERC20 {
+    IJewelToken public immutable override jewel;
+    IBank public immutable override bank;
+    mapping(address => address) public override escrows;
     address internal immutable escrowImplementation;
 
     constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
@@ -21,10 +22,10 @@ contract WrappedLockedJewelToken is ERC20 {
         escrowImplementation = address(new JewelEscrow(_jewel));
     }
 
-    function start(address account) external returns (address escrow) {
+    function start(address account) external override returns (address escrow) {
         require(escrows[account] == address(0), "STARTED");
         // Creates a minimal proxy clone of the escrow contract
-        address implementation = escrowImplementation;
+        address implementation = escrowImplementation; // Necessary since assembly can't access immutable variables
         assembly {
             let ptr := mload(0x40)
             mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
@@ -35,18 +36,15 @@ contract WrappedLockedJewelToken is ERC20 {
         escrows[msg.sender] = escrow;
     }
 
-    function mint(address account) external returns (uint256 shares) {
-        // This stops any new mints after jewel tokens have fully unlocked
-        // This is necessary to prevent diluting the xJEWEL rewards of wlJEWEL holders
-        require(block.number < jewel.lockToBlock(), "UNLOCKED");
+    function mint(address account) external override returns (uint256 shares) {
         shares = JewelEscrow(escrows[account]).pull(account);
         _mint(account, shares);
     }
 
-    function burn(uint256 shares) external returns (uint256 amount) {
+    function burn(uint256 shares) external override returns (uint256 amount) {
         unlock();
         uint256 bankBalance = bank.balanceOf(address(this));
-        // This prevents a user from redeeming 0 JEWEL from wlJEWEL
+        // Prevents a user from redeeming 0 JEWEL from wlJEWEL
         require(bankBalance > 0, "EMPTY");
         bank.leave((shares * bankBalance) / totalSupply);
         _burn(msg.sender, shares);
@@ -54,12 +52,7 @@ contract WrappedLockedJewelToken is ERC20 {
         jewel.transfer(msg.sender, amount);
     }
 
-    function pricePerShare() external view returns (uint256) {
-        uint256 totalShares = totalSupply;
-        return totalSupply > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
-    }
-
-    function unlock() public {
+    function unlock() public override {
         uint256 canUnlockAmount = jewel.canUnlockAmount(address(this));
         if (canUnlockAmount > 0) {
             jewel.unlock();
@@ -72,7 +65,12 @@ contract WrappedLockedJewelToken is ERC20 {
         }
     }
 
-    function unlockedJewel() public view returns (uint256) {
+    function pricePerShare() external view override returns (uint256) {
+        uint256 totalShares = totalSupply;
+        return totalSupply > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
+    }
+
+    function unlockedJewel() public view override returns (uint256) {
         uint256 bankShares = bank.totalSupply();
         return
             jewel.balanceOf(address(this)) +

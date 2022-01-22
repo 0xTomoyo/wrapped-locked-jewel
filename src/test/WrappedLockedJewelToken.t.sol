@@ -55,6 +55,44 @@ contract WrappedLockedJewelTokenTest is Utilities {
         lockedJewel.mint(address(this));
     }
 
+    function testMintAfterUnlock() public {
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll(lockToBlock);
+
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
+        assertEq(jewel.lockOf(escrow), mintAmount);
+        assertEq(jewel.totalBalanceOf(escrow), mintAmount);
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), 0);
+
+        lockedJewel.mint(address(this));
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.balanceOf(address(this)), mintAmount);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+    }
+
+    function testMintAfterTransferAndUnlock() public {
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
+
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll(lockToBlock);
+        assertEq(jewel.lockOf(escrow), mintAmount);
+        assertEq(jewel.totalBalanceOf(escrow), mintAmount);
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), 0);
+
+        lockedJewel.mint(address(this));
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.balanceOf(address(this)), mintAmount);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+    }
+
     function testBurn() public {
         address escrow = lockedJewel.start(address(this));
         jewel.transferAll(escrow);
@@ -65,11 +103,11 @@ contract WrappedLockedJewelTokenTest is Utilities {
         vm.roll((lockFromBlock + lockToBlock) / 2);
 
         assertEq(jewel.balanceOf(address(this)), 0);
-        assertEq(lockedJewel.unlockedJewel(), mintAmount / 2);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount / 2);
         lockedJewel.burn(lockedJewel.balanceOf(address(this)));
         assertEq(lockedJewel.balanceOf(address(this)), 0);
         assertApproxEq(jewel.balanceOf(address(this)), mintAmount / 2, 2);
-        assertEq(lockedJewel.unlockedJewel(), 0);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
     }
 
     function testBurnBeforeUnlock() public {
@@ -94,10 +132,26 @@ contract WrappedLockedJewelTokenTest is Utilities {
         vm.roll(lockToBlock);
 
         assertEq(jewel.balanceOf(address(this)), 0);
-        assertEq(lockedJewel.unlockedJewel(), mintAmount);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount);
         lockedJewel.burn(lockedJewel.balanceOf(address(this)));
         assertEq(lockedJewel.balanceOf(address(this)), 0);
         assertApproxEq(jewel.balanceOf(address(this)), mintAmount, 2);
-        assertEq(lockedJewel.unlockedJewel(), 0);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
+    }
+
+    function testUnlock() public {
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
+        lockedJewel.mint(address(this));
+
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll(lockToBlock);
+
+        assertEq(bank.balanceOf(address(lockedJewel)), 0);
+        uint256 canUnlockAmount = jewel.canUnlockAmount(address(lockedJewel));
+        uint256 bankShares = bank.totalSupply();
+        uint256 bankBalance = jewel.balanceOf(address(bank));
+        lockedJewel.unlock();
+        assertEq(bank.balanceOf(address(lockedJewel)), (canUnlockAmount * bankShares) / bankBalance);
     }
 }
