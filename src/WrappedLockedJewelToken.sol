@@ -8,7 +8,7 @@ import {IBank} from "./interfaces/IBank.sol";
 
 /// @title WrappedLockedJewelToken
 /// @author 0xTomoyo
-/// @notice A wrapped, tradable version of locked Jewel tokens
+/// @notice wlJEWEL, a wrapped and tradable version of locked JEWEL tokens that can be redeemed for JEWEL as the tokens unlock
 contract WrappedLockedJewelToken is ERC20 {
     /// @notice JEWEL token address
     IJewelToken public immutable jewel;
