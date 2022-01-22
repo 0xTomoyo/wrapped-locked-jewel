@@ -13,6 +13,7 @@ contract JewelEscrow {
     /// @notice JEWEL token address
     IJewelToken public immutable jewel;
 
+    /// @param _jewel JEWEL token address
     constructor(address _jewel) {
         lockedJewel = WrappedLockedJewelToken(msg.sender);
         jewel = IJewelToken(_jewel);
