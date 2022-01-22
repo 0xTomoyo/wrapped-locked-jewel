@@ -40,7 +40,7 @@ contract JewelEscrow {
         jewel.transferAll(msg.sender);
     }
 
-    /// @notice Cancels the minting of wLJEWEL by transferring the locked JEWEL in this escrow to its deployer
+    /// @notice Cancels the minting of wLJEWEL by transferring the locked and unlocked JEWEL in this escrow to its deployer
     /// @dev Can only be called by the deployer of this escrow
     function cancel() external {
         require(lockedJewel.escrows(msg.sender) == address(this), "UNAUTHORIZED");
