@@ -10,6 +10,7 @@ import {IJewelToken} from "./interfaces/IJewelToken.sol";
 contract JewelEscrow {
     /// @notice wlJEWEL contract address
     WrappedLockedJewelToken public immutable lockedJewel;
+
     /// @notice JEWEL token address
     IJewelToken public immutable jewel;
 
