@@ -154,4 +154,34 @@ contract WrappedLockedJewelTokenTest is Utilities {
         lockedJewel.unlock();
         assertEq(bank.balanceOf(address(lockedJewel)), (canUnlockAmount * bankShares) / bankBalance);
     }
+
+    function testPricePerShare() public {
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
+        lockedJewel.mint(address(this));
+        assertEq(lockedJewel.pricePerShare(), 0);
+
+        uint256 lockFromBlock = jewel.lockFromBlock();
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll((lockFromBlock + lockToBlock) / 2);
+        assertEq(lockedJewel.pricePerShare(), 0.5e18);
+
+        vm.roll(lockToBlock);
+        assertEq(lockedJewel.pricePerShare(), 1e18);
+    }
+
+    function testUnlockedJewel() public {
+        address escrow = lockedJewel.start(address(this));
+        jewel.transferAll(escrow);
+        lockedJewel.mint(address(this));
+        assertEq(lockedJewel.unlockedJewel(), 0);
+
+        uint256 lockFromBlock = jewel.lockFromBlock();
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll((lockFromBlock + lockToBlock) / 2);
+        assertEq(lockedJewel.unlockedJewel(), mintAmount / 2);
+
+        vm.roll(lockToBlock);
+        assertEq(lockedJewel.unlockedJewel(), mintAmount);
+    }
 }

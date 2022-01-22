@@ -43,7 +43,7 @@ contract WrappedLockedJewelToken is ERC20 {
     function burn(uint256 shares) external returns (uint256 amount) {
         unlock();
         uint256 bankBalance = bank.balanceOf(address(this));
-        // Prevents a user from redeeming 0 JEWEL from wlJEWEL
+        // Prevents a user from redeeming 0 JEWEL from wlJEWEL, i.e. when pricePerShare() == 0
         require(bankBalance > 0, "EMPTY");
         bank.leave((shares * bankBalance) / totalSupply);
         _burn(msg.sender, shares);
