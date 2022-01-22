@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.10;
 
+import {WrappedLockedJewelToken} from "./WrappedLockedJewelToken.sol";
 import {IJewelToken} from "./interfaces/IJewelToken.sol";
 
 /// @title JewelEscrow
 /// @author 0xTomoyo
 /// @notice Escrow contract for minting locked Jewel tokens
 contract JewelEscrow {
-    address public immutable lockedJewel;
+    WrappedLockedJewelToken public immutable lockedJewel;
     IJewelToken public immutable jewel;
 
     constructor(address _jewel) {
-        lockedJewel = msg.sender;
+        lockedJewel = WrappedLockedJewelToken(msg.sender);
         jewel = IJewelToken(_jewel);
     }
 
     function pull(address account) external returns (uint256 lock) {
-        require(msg.sender == lockedJewel, "UNAUTHORIZED");
+        require(msg.sender == address(lockedJewel), "UNAUTHORIZED");
         // Returns unlocked JEWEL back to the user
         // This stops any new mints after jewel tokens have fully unlocked
         // This is necessary to prevent diluting the xJEWEL rewards of wlJEWEL holders
@@ -29,6 +30,11 @@ contract JewelEscrow {
             jewel.transfer(account, balance);
         }
         lock = jewel.lockOf(address(this));
+        jewel.transferAll(msg.sender);
+    }
+
+    function cancel() external {
+        require(lockedJewel.escrows(msg.sender) == address(this), "UNAUTHORIZED");
         jewel.transferAll(msg.sender);
     }
 }

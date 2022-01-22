@@ -10,9 +10,14 @@ import {IBank} from "./interfaces/IBank.sol";
 /// @author 0xTomoyo
 /// @notice A wrapped, tradable version of locked Jewel tokens
 contract WrappedLockedJewelToken is ERC20 {
+    /// @notice JEWEL token address
     IJewelToken public immutable jewel;
+    /// @notice xJEWEL address
     IBank public immutable bank;
+    /// @notice Returns the escrow address for an account
     mapping(address => address) public escrows;
+
+    /// @dev Implementation address for JewelEscrow
     address internal immutable escrowImplementation;
 
     constructor(address _jewel, address _bank) ERC20("Wrapped Locked Jewels", "wlJEWEL", 18) {
@@ -21,8 +26,13 @@ contract WrappedLockedJewelToken is ERC20 {
         escrowImplementation = address(new JewelEscrow(_jewel));
     }
 
-    function start(address account) external returns (address escrow) {
-        require(escrows[account] == address(0), "STARTED");
+    /// @notice Deploys an escrow contract for the sender
+    /// @dev Must be called before calling mint(). After calling start(),
+    /// the locked JEWEL can be transferred to the escrow by calling transferAll(escrow) on the JEWEL contract.
+    /// This function will revert if an escrow contract is already deployed.
+    /// @return escrow Address of the deployed escrow contract
+    function start() external returns (address escrow) {
+        require(escrows[msg.sender] == address(0), "STARTED");
         // Creates a minimal proxy clone of the escrow contract
         address implementation = escrowImplementation; // Necessary since assembly can't access immutable variables
         assembly {
@@ -35,11 +45,22 @@ contract WrappedLockedJewelToken is ERC20 {
         escrows[msg.sender] = escrow;
     }
 
-    function mint(address account) external returns (uint256 shares) {
-        shares = JewelEscrow(escrows[account]).pull(account);
-        _mint(account, shares);
+    /// @notice Mints 1 wlJEWEL for every 1 locked JEWEL in the senders escrow
+    /// @dev Must be called after calling start() and transferring the locked JEWEl to the escrow contract
+    /// @return shares Amount of wlJEWEL minted
+    function mint() external returns (uint256 shares) {
+        shares = JewelEscrow(escrows[msg.sender]).pull(msg.sender);
+        _mint(msg.sender, shares);
     }
 
+    /// @notice Redeems JEWEL by burning wlJEWEL
+    /// @dev The redemption rate can be given by the pricePerShare() function,
+    /// e.g. if the pricePerShare() == 0.2, you will receive 0.2 JEWEl for burning 1 wlJEWEL.
+    /// The redemption rate increases as the locked JEWEL tokens unlock and as the unlocked
+    /// tokens earn yield from xJEWEL staking. This will revert if the pricePerShare() == 0.
+    /// Once the locked JEWEL fully unlocks, the pricePerShare() will be >= 1
+    /// @param shares Amount of the senders wlJEWEL to burn
+    /// @param amount Amount of JEWEL redeemed and transferred to the sender
     function burn(uint256 shares) external returns (uint256 amount) {
         unlock();
         uint256 bankBalance = bank.balanceOf(address(this));
@@ -51,6 +72,7 @@ contract WrappedLockedJewelToken is ERC20 {
         jewel.transfer(msg.sender, amount);
     }
 
+    /// @notice Unlocks the locked JEWEL that can be unlocked and stakes them to receive xJEWEL
     function unlock() public {
         uint256 canUnlockAmount = jewel.canUnlockAmount(address(this));
         if (canUnlockAmount > 0) {
@@ -64,11 +86,13 @@ contract WrappedLockedJewelToken is ERC20 {
         }
     }
 
+    /// @notice The amount of JEWEL that 1 wlJEWEL can be redeemed for
     function pricePerShare() external view returns (uint256) {
         uint256 totalShares = totalSupply;
-        return totalSupply > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
+        return totalShares > 0 ? (((10**decimals) * unlockedJewel()) / totalShares) : 0;
     }
 
+    /// @notice The amount of JEWEL held by this contract that is currently unlocked/can be unlocked
     function unlockedJewel() public view returns (uint256) {
         uint256 bankShares = bank.totalSupply();
         return
