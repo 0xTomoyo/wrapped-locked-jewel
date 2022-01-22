@@ -149,11 +149,13 @@ contract WrappedLockedJewelTokenTest is Utilities {
         uint256 lockToBlock = jewel.lockToBlock();
         vm.roll((lockFromBlock + lockToBlock) / 2);
 
+        uint256 unlockedJewel = lockedJewel.unlockedJewel();
         assertEq(jewel.balanceOf(address(this)), 0);
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount / 2);
         lockedJewel.burn(lockedJewel.balanceOf(address(this)));
         assertEq(lockedJewel.balanceOf(address(this)), 0);
         assertApproxEq(jewel.balanceOf(address(this)), mintAmount / 2, 2);
+        assertEq(jewel.balanceOf(address(this)), unlockedJewel);
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
     }
 
@@ -178,11 +180,13 @@ contract WrappedLockedJewelTokenTest is Utilities {
         uint256 lockToBlock = jewel.lockToBlock();
         vm.roll(lockToBlock);
 
+        uint256 unlockedJewel = lockedJewel.unlockedJewel();
         assertEq(jewel.balanceOf(address(this)), 0);
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount);
         lockedJewel.burn(lockedJewel.balanceOf(address(this)));
         assertEq(lockedJewel.balanceOf(address(this)), 0);
         assertApproxEq(jewel.balanceOf(address(this)), mintAmount, 2);
+        assertEq(jewel.balanceOf(address(this)), unlockedJewel);
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
     }
 
@@ -211,10 +215,10 @@ contract WrappedLockedJewelTokenTest is Utilities {
         uint256 lockFromBlock = jewel.lockFromBlock();
         uint256 lockToBlock = jewel.lockToBlock();
         vm.roll((lockFromBlock + lockToBlock) / 2);
-        assertEq(lockedJewel.pricePerShare(), 0.5e18);
+        assertApproxEq(lockedJewel.pricePerShare(), 0.5e18, 2);
 
         vm.roll(lockToBlock);
-        assertEq(lockedJewel.pricePerShare(), 1e18);
+        assertApproxEq(lockedJewel.pricePerShare(), 1e18, 2);
     }
 
     function testUnlockedJewel() public {
@@ -226,9 +230,9 @@ contract WrappedLockedJewelTokenTest is Utilities {
         uint256 lockFromBlock = jewel.lockFromBlock();
         uint256 lockToBlock = jewel.lockToBlock();
         vm.roll((lockFromBlock + lockToBlock) / 2);
-        assertEq(lockedJewel.unlockedJewel(), mintAmount / 2);
+        assertApproxEq(lockedJewel.unlockedJewel(), mintAmount / 2, 2);
 
         vm.roll(lockToBlock);
-        assertEq(lockedJewel.unlockedJewel(), mintAmount);
+        assertApproxEq(lockedJewel.unlockedJewel(), mintAmount, 2);
     }
 }

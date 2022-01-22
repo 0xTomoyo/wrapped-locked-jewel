@@ -79,10 +79,10 @@ contract WrappedLockedJewelToken is ERC20 {
     /// @return amount Amount of JEWEL redeemed and transferred to the sender
     function burn(uint256 shares) external returns (uint256 amount) {
         unlock();
-        uint256 bankBalance = bank.balanceOf(address(this));
+        uint256 balance = bank.balanceOf(address(this));
         // Prevents a user from redeeming 0 JEWEL from wlJEWEL, i.e. when pricePerShare() == 0
-        require(bankBalance > 0, "EMPTY");
-        bank.leave((shares * bankBalance) / totalSupply);
+        require(balance > 0, "EMPTY");
+        bank.leave((shares * balance) / totalSupply);
         _burn(msg.sender, shares);
         amount = jewel.balanceOf(address(this));
         jewel.transfer(msg.sender, amount);
@@ -111,10 +111,11 @@ contract WrappedLockedJewelToken is ERC20 {
 
     /// @notice The amount of JEWEL held by this contract that is currently unlocked or can be unlocked
     function unlockedJewel() public view returns (uint256) {
+        uint256 balance = jewel.canUnlockAmount(address(this)) + jewel.balanceOf(address(this));
+        uint256 bankBalance = jewel.balanceOf(address(bank));
         uint256 bankShares = bank.totalSupply();
-        return
-            jewel.balanceOf(address(this)) +
-            jewel.canUnlockAmount(address(this)) +
-            (bankShares > 0 ? ((bank.balanceOf(address(this)) * jewel.balanceOf(address(bank))) / bankShares) : 0);
+        uint256 newBankShares = bankBalance > 0 ? ((balance * bankShares) / bankBalance) : 0;
+        bankShares += newBankShares;
+        return bankShares > 0 ? (((bank.balanceOf(address(this)) + newBankShares) * (bankBalance + balance)) / bankShares) : 0;
     }
 }
