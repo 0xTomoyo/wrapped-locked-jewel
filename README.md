@@ -1,5 +1,9 @@
 # wlJEWEL - Wrapped Locked Jewel
 
+## Contract Addresses
+
+WrappedLockedJewelToken: [0xeb971D307F6654199C355397c80D791cB0479345](https://explorer.harmony.one/address/0xeb971D307F6654199C355397c80D791cB0479345)
+
 ## Setup
 
 ```
