@@ -1,5 +1,7 @@
 # wlJEWEL - Wrapped Locked Jewel
 
+ERC20 tradable version of locked JEWEL, redeemable for JEWEL as the tokens unlock
+
 ## Contract Addresses
 
 WrappedLockedJewelToken: [0xc9BA2F89ef2Da3Dc76bF056293C022F4B2fBC9e6](https://explorer.harmony.one/address/0xc9BA2F89ef2Da3Dc76bF056293C022F4B2fBC9e6)
