@@ -1,7 +1,7 @@
 {
   "name": "wrapped-locked-jewel",
   "version": "1.0.0",
-  "description": "wlJEWEL - Wrapped Locked Jewel",
+  "description": "ERC20 tradable version of locked JEWEL",
   "license": "GPL-3.0",
   "homepage": "https://github.com/0xTomoyo/wrapped-locked-jewel",
   "bugs": "https://github.com/0xTomoyo/wrapped-locked-jewel/issues",
