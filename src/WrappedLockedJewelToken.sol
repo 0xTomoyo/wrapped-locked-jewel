@@ -62,7 +62,7 @@ contract WrappedLockedJewelToken is ERC20 {
     }
 
     /// @notice Mints 1 wlJEWEL for every 1 locked JEWEL in the senders escrow
-    /// @dev Must be called after calling start() and transferring the locked JEWEl to the escrow contract
+    /// @dev Must be called after calling start() and transferring the locked JEWEL to the escrow contract
     /// @return shares Amount of wlJEWEL minted
     function mint() external returns (uint256 shares) {
         shares = JewelEscrow(escrows[msg.sender]).pull(msg.sender);
@@ -71,7 +71,7 @@ contract WrappedLockedJewelToken is ERC20 {
 
     /// @notice Redeems JEWEL by burning wlJEWEL
     /// @dev The redemption rate can be given by the pricePerShare() function,
-    /// e.g. if the pricePerShare() == 0.2, you will receive 0.2 JEWEl for burning 1 wlJEWEL.
+    /// e.g. if the pricePerShare() == 0.2, you will receive 0.2 JEWEL for burning 1 wlJEWEL.
     /// The redemption rate increases as the locked JEWEL tokens unlock and as the unlocked
     /// tokens earn yield from xJEWEL staking. This will revert if the pricePerShare() == 0.
     /// Once the locked JEWEL fully unlocks, the pricePerShare() will be >= 1.

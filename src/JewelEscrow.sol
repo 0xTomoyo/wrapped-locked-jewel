@@ -20,11 +20,11 @@ contract JewelEscrow {
         jewel = IJewelToken(_jewel);
     }
 
-    /// @notice Transfers locked JEWEL from this escrow to the wlJEWEl contract for minting wlJEWEL
+    /// @notice Transfers locked JEWEL from this escrow to the wlJEWEL contract for minting wlJEWEL
     /// @dev Can only be called by the wlJEWEL contract. Any unlocked JEWEL in this escrow is transferred
     /// back to the account that deployed this escrow.
     /// @param account The account that deployed this escrow
-    /// @return lock Amount of locked JEWEl transferred to the wlJEWEL contract
+    /// @return lock Amount of locked JEWEL transferred to the wlJEWEL contract
     function pull(address account) external returns (uint256 lock) {
         require(msg.sender == address(lockedJewel), "UNAUTHORIZED");
         // Returns unlocked JEWEL back to the user
