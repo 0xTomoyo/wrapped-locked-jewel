@@ -1,4 +1,4 @@
-# wlJEWEL - Wrapped Locked Jewel
+# [wlJEWEL](https://lockedjewel.xyz/) - Wrapped Locked Jewel
 
 ERC20 tradable version of locked JEWEL, redeemable for JEWEL as the tokens unlock
 
