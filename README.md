@@ -4,7 +4,7 @@ ERC20 tradable version of locked JEWEL, redeemable for JEWEL as the tokens unloc
 
 ## Contract Addresses
 
-WrappedLockedJewelToken: [0xc9BA2F89ef2Da3Dc76bF056293C022F4B2fBC9e6](https://explorer.harmony.one/address/0xc9BA2F89ef2Da3Dc76bF056293C022F4B2fBC9e6)
+WrappedLockedJewelToken: [0x7B5B596C236cFCD9e8d1501B403797a516F366CE](https://explorer.harmony.one/address/0x7B5B596C236cFCD9e8d1501B403797a516F366CE)
 
 ## Setup
 
