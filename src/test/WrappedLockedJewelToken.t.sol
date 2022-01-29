@@ -47,6 +47,26 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(jewel.lockOf(escrow), 0);
     }
 
+    function testMintZero() public {
+        address escrow = lockedJewel.start();
+
+        uint256 totalBalance = jewel.totalBalanceOf(address(this));
+        uint256 locked = jewel.lockOf(address(this));
+        assertEq(totalBalance, locked);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), totalBalance);
+        assertEq(jewel.lockOf(address(this)), locked);
+
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        lockedJewel.mint();
+        assertEq(lockedJewel.balanceOf(address(this)), 0);
+        assertEq(jewel.totalBalanceOf(address(lockedJewel)), 0);
+        assertEq(jewel.lockOf(address(lockedJewel)), 0);
+        assertEq(jewel.totalBalanceOf(escrow), 0);
+        assertEq(jewel.lockOf(escrow), 0);
+    }
+
     function testMintUnlockedJewel() public {
         uint256 unlockedJewel = mintAmount / 2;
         mintJewel(address(this), unlockedJewel);
@@ -156,6 +176,25 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(lockedJewel.balanceOf(address(this)), 0);
         assertApproxEq(jewel.balanceOf(address(this)), mintAmount / 2, 2);
         assertEq(jewel.balanceOf(address(this)), unlockedJewel);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
+    }
+
+    function testBurnZero() public {
+        address escrow = lockedJewel.start();
+        jewel.transferAll(escrow);
+        lockedJewel.mint();
+
+        uint256 lockFromBlock = jewel.lockFromBlock();
+        uint256 lockToBlock = jewel.lockToBlock();
+        vm.roll((lockFromBlock + lockToBlock) / 2);
+
+        uint256 unlockedJewel = lockedJewel.unlockedJewel();
+        assertEq(jewel.balanceOf(address(this)), 0);
+        assertEq(jewel.canUnlockAmount(address(lockedJewel)), mintAmount / 2);
+        lockedJewel.burn(0);
+        assertEq(lockedJewel.balanceOf(address(this)), mintAmount);
+        assertApproxEq(jewel.balanceOf(address(this)), 0, 2);
+        assertEq(lockedJewel.unlockedJewel(), unlockedJewel);
         assertEq(jewel.canUnlockAmount(address(lockedJewel)), 0);
     }
 

@@ -29,6 +29,20 @@ contract JewelEscrowTest is Utilities {
         assertEq(jewel.lockOf(address(lockedJewel)), mintAmount);
     }
 
+    function testPullZero() public {
+        JewelEscrow escrow = lockedJewel.start();
+
+        assertEq(jewel.totalBalanceOf(address(escrow)), 0);
+        assertEq(jewel.lockOf(address(escrow)), 0);
+        assertEq(jewel.totalBalanceOf(address(lockedJewel)), 0);
+        assertEq(jewel.lockOf(address(lockedJewel)), 0);
+        lockedJewel.pull(escrow);
+        assertEq(jewel.totalBalanceOf(address(escrow)), 0);
+        assertEq(jewel.lockOf(address(escrow)), 0);
+        assertEq(jewel.totalBalanceOf(address(lockedJewel)), 0);
+        assertEq(jewel.lockOf(address(lockedJewel)), 0);
+    }
+
     function testPullUnauthorized() public {
         JewelEscrow escrow = lockedJewel.start();
         jewel.transferAll(address(escrow));
@@ -73,6 +87,21 @@ contract JewelEscrowTest is Utilities {
         assertEq(jewel.lockOf(address(escrow)), mintAmount);
         assertEq(jewel.totalBalanceOf(address(this)), 0);
         assertEq(jewel.lockOf(address(this)), 0);
+        escrow.cancel();
+        assertEq(jewel.totalBalanceOf(address(escrow)), 0);
+        assertEq(jewel.lockOf(address(escrow)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+        assertEq(jewel.lockOf(address(this)), mintAmount);
+    }
+
+    function testCancelZero() public {
+        JewelEscrow escrow = lockedJewel.start();
+
+        lockedJewel.setEscrow(address(this), address(escrow));
+        assertEq(jewel.totalBalanceOf(address(escrow)), 0);
+        assertEq(jewel.lockOf(address(escrow)), 0);
+        assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
+        assertEq(jewel.lockOf(address(this)), mintAmount);
         escrow.cancel();
         assertEq(jewel.totalBalanceOf(address(escrow)), 0);
         assertEq(jewel.lockOf(address(escrow)), 0);
