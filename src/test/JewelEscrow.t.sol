@@ -10,7 +10,7 @@ contract JewelEscrowTest is Utilities {
     uint256 internal constant mintAmount = 100e18;
 
     function setUp() public {
-        mintLockedJewel(address(this), mintAmount);
+        setLockedJewel(address(this), mintAmount);
         lockedJewel = new MockWrappedLockedJewelToken(address(jewel));
     }
 
@@ -53,7 +53,7 @@ contract JewelEscrowTest is Utilities {
 
     function testPullUnlockedJewel() public {
         uint256 unlockedJewel = mintAmount / 2;
-        mintJewel(address(this), unlockedJewel);
+        setJewel(address(this), unlockedJewel);
         JewelEscrow escrow = lockedJewel.start();
         jewel.transferAll(address(escrow));
 
@@ -119,7 +119,7 @@ contract JewelEscrowTest is Utilities {
 
     function testCancelUnlockedJewel() public {
         uint256 unlockedJewel = mintAmount / 2;
-        mintJewel(address(this), unlockedJewel);
+        setJewel(address(this), unlockedJewel);
         JewelEscrow escrow = lockedJewel.start();
         jewel.transferAll(address(escrow));
 
