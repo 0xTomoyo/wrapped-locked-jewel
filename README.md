@@ -11,13 +11,13 @@ WrappedLockedJewelToken: [0x7B5B596C236cFCD9e8d1501B403797a516F366CE](https://ex
 ```
 git clone https://github.com/0xTomoyo/wrapped-locked-jewel.git
 cd wrapped-locked-jewel
-forge update
+forge install
 ```
 
 ## Test
 
 ```
-forge test --fork-url https://a.api.s0.t.hmny.io/ --fork-block-number 21963639
+forge test
 ```
 
 ## Lint

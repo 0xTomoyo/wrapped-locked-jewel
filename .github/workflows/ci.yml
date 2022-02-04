@@ -12,9 +12,9 @@ jobs:
         with:
           version: nightly
       - name: Install dependencies
-        run: forge update
+        run: forge install
       - name: Run tests
-        run: forge test --fork-url https://a.api.s0.t.hmny.io/ --fork-block-number 21963639
+        run: forge test -vvv
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
         with:
           version: nightly
       - name: Install dependencies
-        run: forge update
+        run: forge install
       - name: Install node dependencies
         run: yarn install
       - name: Check if contracts are linted
