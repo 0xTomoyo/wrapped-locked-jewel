@@ -11,6 +11,11 @@ contract Utilities is DSTest {
     IJewelToken internal constant jewel = IJewelToken(0x72Cb10C6bfA5624dD07Ef608027E366bd690048F);
     IBank internal constant bank = IBank(0xA9cE83507D872C5e1273E745aBcfDa849DAA654F);
 
+    function setUp() public virtual {
+        hevm.label(address(jewel), "JewelToken");
+        hevm.label(address(bank), "Bank");
+    }
+
     function setJewel(address to, uint256 amount) internal {
         hevm.store(address(jewel), keccak256(abi.encode(to, 0)), bytes32(amount));
     }

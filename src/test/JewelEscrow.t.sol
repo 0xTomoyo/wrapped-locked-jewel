@@ -9,7 +9,8 @@ contract JewelEscrowTest is Utilities {
     MockWrappedLockedJewelToken internal lockedJewel;
     uint256 internal constant mintAmount = 100e18;
 
-    function setUp() public {
+    function setUp() public override {
+        super.setUp();
         setLockedJewel(address(this), mintAmount);
         lockedJewel = new MockWrappedLockedJewelToken(address(jewel));
     }
