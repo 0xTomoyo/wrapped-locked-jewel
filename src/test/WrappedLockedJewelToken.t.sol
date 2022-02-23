@@ -118,8 +118,8 @@ contract WrappedLockedJewelTokenTest is Utilities {
         assertEq(jewel.totalBalanceOf(address(this)), mintAmount);
     }
 
-    function testFailMintBeforeStart() public {
-        hevm.expectRevert(bytes4(0));
+    function testMintBeforeStart() public {
+        hevm.expectRevert(bytes(""));
         lockedJewel.mint();
     }
 
