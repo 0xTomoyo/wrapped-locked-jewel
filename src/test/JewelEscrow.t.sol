@@ -47,7 +47,7 @@ contract JewelEscrowTest is Utilities {
         JewelEscrow escrow = lockedJewel.start();
         jewel.transferAll(address(escrow));
 
-        vm.expectRevert("UNAUTHORIZED");
+        hevm.expectRevert("UNAUTHORIZED");
         escrow.pull(address(this));
     }
 
@@ -113,7 +113,7 @@ contract JewelEscrowTest is Utilities {
         JewelEscrow escrow = lockedJewel.start();
         jewel.transferAll(address(escrow));
 
-        vm.expectRevert("UNAUTHORIZED");
+        hevm.expectRevert("UNAUTHORIZED");
         escrow.cancel();
     }
 

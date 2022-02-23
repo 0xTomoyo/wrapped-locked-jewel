@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
-interface Vm {
+interface Hevm {
     // Set block.timestamp (newTimestamp)
     function warp(uint256) external;
 
@@ -60,6 +60,8 @@ interface Vm {
     // Expects an error on next call
     function expectRevert(bytes calldata) external;
 
+    function expectRevert(bytes4) external;
+
     // Record all storage reads and writes
     function record() external;
 
@@ -92,4 +94,13 @@ interface Vm {
     // Expect a call to an address with the specified calldata.
     // Calldata can either be strict or a partial match
     function expectCall(address, bytes calldata) external;
+
+    // Gets the code from an artifact file. Takes in the relative path to the json file
+    function getCode(string calldata) external returns (bytes memory);
+
+    // Labels an address in call traces
+    function label(address, string calldata) external;
+
+    // If the condition is false, discard this run's fuzz inputs and generate new ones
+    function assume(bool) external;
 }

@@ -4,19 +4,19 @@ pragma solidity ^0.8.10;
 import {DSTest} from "ds-test/test.sol";
 import {IJewelToken} from "../../interfaces/IJewelToken.sol";
 import {IBank} from "../../interfaces/IBank.sol";
-import {Vm} from "./Vm.sol";
+import {Hevm} from "./Hevm.sol";
 
 contract Utilities is DSTest {
-    Vm internal constant vm = Vm(HEVM_ADDRESS);
+    Hevm internal constant hevm = Hevm(HEVM_ADDRESS);
     IJewelToken internal constant jewel = IJewelToken(0x72Cb10C6bfA5624dD07Ef608027E366bd690048F);
     IBank internal constant bank = IBank(0xA9cE83507D872C5e1273E745aBcfDa849DAA654F);
 
     function setJewel(address to, uint256 amount) internal {
-        vm.store(address(jewel), keccak256(abi.encode(to, 0)), bytes32(amount));
+        hevm.store(address(jewel), keccak256(abi.encode(to, 0)), bytes32(amount));
     }
 
     function setLockedJewel(address to, uint256 amount) internal {
-        vm.store(address(jewel), keccak256(abi.encode(to, 15)), bytes32(amount));
+        hevm.store(address(jewel), keccak256(abi.encode(to, 15)), bytes32(amount));
     }
 
     function assertApproxEq(

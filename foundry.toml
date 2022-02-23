@@ -8,6 +8,8 @@ block_timestamp = 0
 cache = true
 eth_rpc_url = 'https://a.api.s0.t.hmny.io/'
 evm_version = 'london'
+extra_output = []
+extra_output_files = []
 ffi = false
 force = false
 fork_block_number = 21963639
@@ -31,6 +33,7 @@ remappings = [
     'weird-erc20/=lib/solmate/lib/weird-erc20/src/',
 ]
 sender = '0x00a329c0648769a73afac7f9381e08fb43dbea72'
+solc_version = '0.8.10'
 src = 'src'
 test = 'test'
 tx_origin = '0x00a329c0648769a73afac7f9381e08fb43dbea72'
